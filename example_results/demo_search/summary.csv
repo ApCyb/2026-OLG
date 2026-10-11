@@ -1,0 +1,3 @@
+Method,Repetition,CandidateFound,StopReason,Evaluations,FirstCandidateEvaluation,FirstCandidateSeconds,CandidateB,FoundDuringInitialization,OrbitSteps,TangentSteps,EvaluationSeconds,ElapsedSeconds,FTLECalls,LowRegionEvaluations,Trajectories
+de,1,1,candidate_found,35,35,3.155890125,1.513,0,3226905,0,2.69063275,3.28866325,107,3,10780
+full_scan,1,1,candidate_found,5072,5072,187.082642958333,1.5072,0,522384731,0,184.332703708333,187.152176,1,101,1562176
