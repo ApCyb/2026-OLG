@@ -1,0 +1,17 @@
+{
+  "sali": 0,
+  "condnDelta": 5.4375792906734688,
+  "condnTraces": [
+    19.332321038006192,
+    20.813594025084907,
+    24.208989180564192,
+    24.769900328679661
+  ],
+  "steps": 1000,
+  "seconds": 0.010133375,
+  "status": "ok",
+  "orbitMatches": true,
+  "tangentSteps": 1000,
+  "saliCalls": 1,
+  "condnCalls": 1
+}

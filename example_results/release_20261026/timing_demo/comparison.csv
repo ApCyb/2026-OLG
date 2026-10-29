@@ -1,0 +1,9 @@
+Indicator,Baseline,BaselineOverIndicatorTime,IndicatorFaster
+zero_one,rosenstein_short,7.0302879429093,1
+sali,rosenstein_short,29.8316901408451,1
+condn,rosenstein_short,3.57864353800881,1
+cheap_total,rosenstein_short,2.1647545800649,1
+zero_one,rosenstein_long,23.4271568057976,1
+sali,rosenstein_long,99.4086854460094,1
+condn,rosenstein_long,11.925179167312,1
+cheap_total,rosenstein_long,7.21365119111497,1

@@ -1,0 +1,25 @@
+{
+  "releaseDate": "2026-10-26",
+  "configurationSchema": 4,
+  "upstreamDE": "FEX18593 1.16.0 (unmodified)",
+  "defaultGridComparison": "measured DE plus estimated grid cost",
+  "actualGridOption": "cfg.search.gridMode = full_scan",
+  "denseQNodes": 273034001,
+  "parameterGridNodes": 6001,
+  "nativeBinariesDistributed": false,
+  "fullDenseSearchExecuted": false,
+  "suppliedTimingFilter": "Rosenstein baselines only; Jacobian-product FTLE excluded at user request",
+  "defaultPhaseScan": "first_hit",
+  "phaseScanOptions": [
+    "first_hit",
+    "full"
+  ],
+  "defaultStateOrder": "shuffle",
+  "defaultStateSeed": 20261026,
+  "firstHitInitialBatch": 1280,
+  "fullRecordsBytesPerNodeBeforeCompression": 47,
+  "nativeIntegratorRequiresRebuild": true,
+  "testsWithMEX": 20,
+  "portableTestsWithoutMEX": 18,
+  "optionalNativeSkips": 2
+}

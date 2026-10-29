@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 4,
+  "mode": "compare_DE_vs_full_scan",
+  "profile": "paper",
+  "model": {
+    "lambda": 3.01,
+    "sigma": 1.03,
+    "beta": 0.99
+  },
+  "horizon": {
+    "cheap": 5000,
+    "transient": 1000,
+    "ftle": 10000
+  },
+  "search": {
+    "bRange": [
+      1,
+      1.6
+    ],
+    "bStep": 0.0001,
+    "includeLowerEndpoint": true,
+    "snapToGrid": true,
+    "Q": [
+      [
+        0,
+        1.3
+      ],
+      [
+        0,
+        2.1
+      ]
+    ],
+    "stateStep": [
+      0.0001,
+      0.0001
+    ],
+    "stateGridSize": [
+      14,
+      22
+    ],
+    "stateChunkSize": 32,
+    "stateBatchSize": 64,
+    "stateProgressSeconds": 30,
+    "stateCheckpointSeconds": 30,
+    "stateOrder": "shuffle",
+    "stateSeed": 2.0261026E+7,
+    "phaseScan": "first_hit",
+    "firstHitBatchSize": 16,
+    "diagnostics": true,
+    "cacheParameters": true,
+    "gridMode": "estimate",
+    "gridFirstProbeCount": 3,
+    "gridExtraProbes": true,
+    "gridProbesPerRegime": 3,
+    "historicalCandidateB": 1.5069,
+    "gridRegimeBreaks": [
+      1.0101010101010102,
+      1.4,
+      1.48
+    ],
+    "population": 20,
+    "mutation": 0.8,
+    "strategy": 7,
+    "crossover": 1,
+    "repetitions": 5,
+    "maxEvaluations": "Inf, capped at b-grid size",
+    "seed": 2.0261011E+7,
+    "progressEvery": 100
+  },
+  "basin": {
+    "maxPeriod": 32,
+    "repeats": 8,
+    "periodTolerance": 1E-7,
+    "clusterTolerance": 1E-5
+  },
+  "parallel": {
+    "enabled": false,
+    "workers": "auto",
+    "resizePool": true,
+    "poolType": "auto"
+  },
+  "runtime": {
+    "integrator": "native",
+    "zeroOneBackend": "native"
+  },
+  "filters": [
+    "zero_one"
+  ],
+  "zeroOne": {
+    "cValues": [
+      0.65777096184536288,
+      0.71667582410017161,
+      0.77558068635498012,
+      0.83448554860978885,
+      0.89339041086459736,
+      0.95229527311940609,
+      1.0112001353742146,
+      1.0701049976290233,
+      1.1290098598838318,
+      1.1879147221386406,
+      1.2468195843934491,
+      1.3057244466482578,
+      1.3646293089030663,
+      1.4235341711578751,
+      1.4824390334126836,
+      1.5413438956674921,
+      1.600248757922301,
+      1.6591536201771095,
+      1.7180584824319181,
+      1.7769633446867268,
+      1.8358682069415353,
+      1.894773069196344,
+      1.9536779314511525,
+      2.012582793705961,
+      2.07148765596077,
+      2.1303925182155785,
+      2.189297380470387,
+      2.2482022427251955,
+      2.3071071049800045,
+      2.366011967234813,
+      2.4249168294896215,
+      2.4838216917444305
+    ],
+    "lagFraction": 0.1,
+    "threshold": 0.8
+  },
+  "sali": {
+    "threshold": 1E-8
+  },
+  "rosenstein": {
+    "embedding": 3,
+    "delay": 1,
+    "theiler": 32,
+    "maxIter": 48,
+    "fit": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "minPairs": 20,
+    "minR2": 0.9,
+    "neighborMethod": "auto"
+  },
+  "condn": {
+    "reservoirSize": 100,
+    "samplingFactors": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "spectralRadius": 0.9,
+    "inputScale": 0.5,
+    "biasScale": 0.2,
+    "aperture": 10,
+    "ridge": 1E-6,
+    "seed": 2.0261009E+7,
+    "threshold": 0
+  },
+  "detector": {
+    "ftleThreshold": 0.005,
+    "regularTolerance": 1E-7,
+    "maxPeriod": 32,
+    "maxState": 1.0E+8
+  },
+  "timing": {
+    "b": 1.54,
+    "x0": [
+      0.5,
+      1
+    ],
+    "indicators": [
+      "zero_one",
+      "sali",
+      "condn"
+    ],
+    "repetitions": 7,
+    "warmupPasses": 1,
+    "implementation": "optimized",
+    "zeroOneBackend": "matlab",
+    "neighborMethod": "brute"
+  },
+  "output": {
+    "enabled": true,
+    "plots": true,
+    "visible": false,
+    "resume": true,
+    "directory": "results/release_20261026/q_first_hit"
+  }
+}
