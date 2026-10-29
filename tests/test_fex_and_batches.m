@@ -45,30 +45,29 @@ verifyEqual(t,pwd,oldDir); verifyEqual(t,path,oldPath); verifyEqual(t,rng,oldRng
 end
 
 function testStateBlocksCoverEveryPoint(t)
-c=olg_config; c.search.Q=[0 0.0002;0 0.0003];
+c=olg_config; c.search.stateOrder='lex'; c.search.Q=[0 0.0002;0 0.0003];
 [~,U]=olg.grids(c); [C,L]=ndgrid(U.C,U.L); expected=[C(:) L(:)];
 actual=[olg.state_block(U,1,5);olg.state_block(U,6,U.count)];
 verifyEqual(t,actual,expected); verifySize(t,actual,[12 2]);
 c.search.Q(1,2)=0.00025;
-verifyError(t,@()olg.grids(c),'OLG:StateGrid');
+verifyError(t,@()olg.grids(c),'OLG:PhaseGrid');
 end
 
-function testFullTraversalAfterFirstCandidate(t)
+function testPositiveTraversalOptionAndNegativeFullScan(t)
 c=olg_config; c.parallel.enabled=false; c.output.enabled=false;
-c.search.stateBatchSize=2; c.search.retainInitialStatesMax=0;
-U=[0.5 1;0 0;0.51 1;1.3 0;0.49 1];
-a=olg.evaluate(1.54,U,c);
-verifyTrue(t,a.candidate); verifyEqual(t,a.firstCandidateStateIndex,1);
-verifyEqual(t,a.trajectories,5); verifyTrue(t,a.completeStateGrid);
-verifyEmpty(t,a.initialStates); verifyEqual(t,a.witness.x0,U(1,:));
-verifyLessThanOrEqual(t,a.firstCandidateBatchSeconds,a.seconds);
-c.search.stateBatchSize=100; c.search.retainInitialStatesMax=100;
-b=olg.evaluate(1.54,U,c);
-fields={'score','candidateCount','cheapSurvivors','fullSurvivors', ...
-    'trajectories','orbitSteps','tangentSteps','indicatorCalls','witnessIndex'};
-for k=1:numel(fields), verifyEqual(t,a.(fields{k}),b.(fields{k})); end
-verifyEqual(t,numel(b.initialStates),5);
-verifyEqual(t,a.witness.values,b.witness.values);
+c.search.Q=[.49 .51;.99 1.01]; c.search.stateStep=[.01 .01];
+c.search.stateOrder='lex'; c.search.stateChunkSize=2; c.search.stateBatchSize=4;
+c.search.diagnostics=false; c.rosenstein.neighborMethod='brute';
+[~,U]=olg.grids(c);
+a=olg.evaluate(1.54,U,c); verifyTrue(t,a.candidate);
+verifyLessThan(t,a.trajectories,U.count); verifyFalse(t,a.exhaustedPhasePool);
+c.search.phaseScan='full'; c.output.enabled=true; c.output.directory=tempname;
+b=olg.evaluate(1.54,U,c,[tempname '.mat']); verifyTrue(t,b.candidate); verifyEqual(t,b.trajectories,U.count);
+verifyTrue(t,b.exhaustedPhasePool);
+c.search.Q=[0 .0001;0 .0001]; c.search.stateStep=[.0001 .0001];
+c.search.phaseScan='first_hit'; [~,U]=olg.grids(c);
+e=olg.evaluate(1,U,c); verifyFalse(t,e.candidate); verifyTrue(t,e.exhaustedPhasePool);
+verifyEqual(t,e.trajectories,U.count);
 end
 
 function testUpstreamFilesUnmodified(t)

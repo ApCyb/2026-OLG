@@ -1,0 +1,8 @@
+{
+  "requestedWorkers": 2,
+  "actualWorkers": 2,
+  "physicalCores": 10,
+  "performanceCores": 8,
+  "computationalThreads": 10,
+  "poolType": "parallel.ThreadPool"
+}

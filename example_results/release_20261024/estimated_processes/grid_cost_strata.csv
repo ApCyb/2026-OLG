@@ -1,0 +1,5 @@
+regime,firstB,nextBExclusive,assumedEvaluations,measuredProbes,meanProbeSeconds,estimatedSeconds
+1,-Inf,1.535,50,2,0.37803775,18.9018875
+2,1.535,1.54,50,1,0.2286815,11.434075
+3,1.54,1.545,1,1,0.0926481666666667,0.0926481666666667
+4,1.545,Inf,0,0,NaN,0

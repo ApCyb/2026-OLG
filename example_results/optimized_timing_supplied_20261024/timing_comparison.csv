@@ -1,0 +1,9 @@
+Indicator,Baseline,BaselineOverIndicatorTime,IndicatorFaster
+0-1 test (5000),Rosenstein largest exponent (5000),8.0765188392545,1
+SALI (5000),Rosenstein largest exponent (5000),180.561087061087,1
+ConDN (5000),Rosenstein largest exponent (5000),3.81826966354993,1
+Three indicators total (5000),Rosenstein largest exponent (5000),2.37260909480191,1
+0-1 test (5000),Rosenstein largest exponent (10000),39.2551918887664,1
+SALI (5000),Rosenstein largest exponent (10000),877.60088985089,1
+ConDN (5000),Rosenstein largest exponent (10000),18.5583555624496,1
+Three indicators total (5000),Rosenstein largest exponent (10000),11.5318526641459,1

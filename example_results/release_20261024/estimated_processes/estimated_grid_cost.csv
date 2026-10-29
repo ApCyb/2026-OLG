@@ -1,0 +1,3 @@
+estimateType,assumedEvaluations,estimatedSearchSeconds,historicalCandidateB,historicalStoppingIndex,observedEarlierCandidate,historicalBChecked,candidateAtHistoricalBUnderNewProtocol,evaluationRatioToMeanDE,requestRatioToMeanDE,timeRatioToMeanDE
+first_nodes_extrapolation,101,38.18181275,1.54,101,1,1,1,67.3333333333333,67.3333333333333,22.9065281318129
+regime_probes_extrapolation,101,30.4286106666667,1.54,101,1,1,1,67.3333333333333,67.3333333333333,18.2551266177895

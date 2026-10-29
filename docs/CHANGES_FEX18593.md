@@ -1,10 +1,14 @@
-# Changes from the original unified OLG package
+# Changes in the 26 October 2026 release
 
-- DE now runs the unmodified Markus Buehren implementation from File Exchange 18593, version 1.16.0. Native initialization, clipping, strict selection and reinitialization replace the earlier hand-written search rules. The adapter preserves per-evaluation stopping and budgets.
-- Both search methods use Q=[0,1.3] × [0,2.1], with step 0.0001 and inclusive endpoints in both profiles: 273,034,001 initial states. Traversal is complete at each parameter and uses bounded-size blocks. A candidate does not stop this inner traversal.
-- `stateStep`, `stateBatchSize`, `retainInitialStatesMax` and `stateProgressSeconds` are configurable. A nonempty `stateGridSize` is an explicit resolution override for verification or other experiments; demo no longer coarsens Q.
-- `result.initialStates` is a grid descriptor rather than a Cartesian-product matrix. Dense per-state diagnostics are replaced by aggregates and one witness. Small grids retain individual diagnostics.
-- Discovery time is recorded when the first candidate block is returned. Total search time also includes the required remaining Q blocks. Ledger fields identify the completed grid, first candidate index and detection time.
-- Configuration schema is version 2. Create a fresh configuration using this package's `olg_config`, rather than loading an older configuration structure.
-- The Rosenstein-only Lyapunov estimator and both indicator-timing profiles retain their definitions. New example search outputs use an explicitly coarse Q grid; they are not dense-grid results and do not reuse older DE measurements.
-- English and Russian instructions, upstream provenance, source hashes, license notices and regression tests are included. No license has been selected for the OLG-specific code.
+- Added explicit `first_hit` and `full` Q modes as the third argument to `olg_config`. Two-argument calls default to first_hit. Each mode gets a separate output directory.
+- Added seeded six-round Feistel/cycle-walking shuffle as the default, retaining lex and previous affine traversal options. It requires no full randperm array, preserves RNG and visits each node once.
+- Added adaptive first-hit batches starting at 1280, doubling to 40960. Negative evaluations still exhaust Q without a point budget.
+- Full mode completes every positive Q and writes per-node finite-horizon outcomes, regular-tail IDs, periods, steps, last states and indicator values. Approximate raw storage is 47*N bytes, 12.83 GB per dense Q/b.
+- Added `olg_scan_b`, `olg_plot_phase_map`, `olg_phase_legend` and small map examples. The map reader handles committed data only and supports reading the standalone map format.
+- Separated first candidate search time from full-map completion time. First-hit witnesses follow traversal order, not worker finish order. Prefix and local first-hit times survive resume.
+- Updated the optional C++ integrator to return per-node details; rebuild MEX and restart previous worker pools after updating. The client checks its changed ABI.
+- Configuration schema is 4; previous FAST/STAGED/Q_MODES and October 24 checkpoints are not resumable. Read-only old-map access does not imply checkpoint migration.
+- Preserved FEX18593 v1.16.0 unmodified, negative parameter caching, complete-grid comparison and explicitly labeled grid-cost estimates. Experiment 2 retains the same Rosenstein-only indicators/baselines.
+- Updated RU/EN READMEs, GitHub update instructions, source provenance, tests and small verification artifacts. No dense 273034001-node search was run for this release.
+
+Historical reports: [24 October](VALIDATION_20261024.md), [11 October](VALIDATION_20261011.md). Their costs should not be mixed with the new order, batching or Q modes.

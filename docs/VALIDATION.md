@@ -1,62 +1,66 @@
-# Verification of the File Exchange DE variant
+# Verification of the Q-mode release — 26 October 2026
 
-Verified on 11 October 2026 with MATLAB R2024a (`24.1.0.2537033`, MACA64). The comparison below used 10 thread workers (10 physical cores, including 8 performance cores). The DE backend is Markus Buehren's File Exchange 18593, version 1.16.0. No results from the earlier hand-written DE are reused.
+MATLAB R2024a, macOS Apple Silicon; optional kernels rebuilt with Xcode Clang++. **The dense 273034001-node Q experiment was not run.** Maps and timing below concern explicit small grids, not an extrapolated full experiment.
 
-**The default Q grid has 273,034,001 states per parameter. Its full search was not run.** The verification search explicitly overrides Q resolution to 14 × 22 = 308 states. It retains the requested Q rectangle, the full 6000-node b_L grid, and the complete traversal of Q at every visited parameter. The reported speed ratios apply only to this coarse verification case.
+## Automated checks
 
-## Completed checks
+All **20 tests** passed with compiled kernels available. A clean source-only copy passed **18 tests**, skipped the two optional native-only tests and reported zero failures.
 
-Fourteen automated tests cover:
+Inherited checks cover native FEX18593 invocation and byte-for-byte integrity of its 38 source files; initialization/generation budgets; cached versus uncached proposals and fitness; completed and interrupted native DE replay; complete negative scans and censored estimates; FFT/native agreement; ConDN/RNG preservation; SALI normalization; exact tree indices with ties; and Rosenstein-only timing.
 
-- Requested profiles, parameter-grid endpoints and the dense grid's exact shape, endpoints and index transitions.
-- Bounded-memory block reconstruction and complete traversal after a candidate, including the final partial block; aggregate counts are independent of block size.
-- Actual invocation of the bundled `differentialevolution` engine, initialization and generation numbering, and exact budgets, including a budget of one and a stop partway through a generation.
-- Reproducible DE traces with the same seed; restoration of MATLAB path, current directory and global RNG; propagation of evaluator errors.
-- Byte-for-byte SHA-256 integrity of all 38 upstream files.
-- Orbit extension, exits, transient indexing, gates, regular controls, the known OLG candidate, and shared timing/search indicator kernels.
+New checks cover:
 
-Serial and thread-pool evaluations agreed numerically for both the default gate and the optional combination of 0–1, SALI and ConDN. Both indicator timing profiles completed. The known state `(C_0,L_0)=(0.5,1)` at `b_L=1.54` passed the paper detector with short-series K = 0.997332551, Rosenstein estimate = 0.110704397 per iteration and fit R² = 0.998423030, using the full 10000-step horizon.
+- Complete shuffle coverage for N=1,2,3,4,37,308,1025,10000; first 100000 dense-Q indices without repeats; seed reproducibility/change and preservation of the optimizer RNG.
+- Adaptive first batches and the first witness in traversal order, with distinct phase position and Cartesian ID.
+- Full records for all 308 coarse nodes, with no duplicates or provisional survivor status; single-precision stored indicators and uint32 step/ID fields.
+- Zero deferred screens in full mode; chaos status 9 always with attractor=0; regular labels assigned only to numerically matched tails.
+- Read-only maps, ignored orphan files, completed checkpoint reuse and a coherent interrupted full prefix that already contains a candidate but still resumes to all nodes.
+- Separate first-hit and total DE times, preserved first-hit time after replay of a committed Q evaluation, and changed-order resume rejection.
+- Per-node integration details in MATLAB/native and the updated seven-output MEX ABI. Rebuilding an already loaded client kernel was also checked.
 
-## Coarse search verification
+The integration script checked both timing profiles, real and estimated b-grid comparison paths, serial/parallel agreement, Threads and Processes with two workers, and native full maps with the complete paper horizons. Static analysis was applied to the changed numerical routines. Source-only execution requires no compiler or PCT for the serial unit suite.
 
-Configuration: Q = [0,1.3] × [0,2.1], explicit `stateGridSize=[14 22]` (step 0.1); b_L in (1,1.6] with step 0.0001; cheap horizon 1000, transient 100, Rosenstein horizon 2000; only the 0–1 gate; population 20, native strategy 7, F=0.8, CR=1, seed 20261011. All 308 states were evaluated for every visited b_L. Timing and parallel checks ran before this search in the same MATLAB process.
+## Single-b Q-mode checks
 
-| Method | Evaluations to candidate | Candidate b_L | Seconds to detection | Total search seconds | Model steps | Rosenstein calls |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| File Exchange DE | 35 | 1.5130 | 3.1559 | 3.2887 | 3,226,905 | 107 |
-| Ascending grid | 5072 | 1.5072 | 187.0826 | 187.1522 | 522,384,731 | 1 |
+Settings: lambda=3.01, sigma=1.03, beta=0.99, b_L=1.54; Q=[0,1.3]×[0,2.1], **explicit 14×22=308 nodes, step 0.1**. Paper horizons: 1000 transient + 4000 retained, 32 c values, 10000-point Rosenstein; diagnostics enabled; native integrator/FFT/tree. Chunk=32, max batch=64; first-hit initial batch=16. These are software checks, not default dense settings.
 
-In this pair, the grid/DE ratios were **144.91** for parameter evaluations, **59.28** for detection time and **56.91** for total search time. DE's candidate occurred in its first evolutionary generation after the 20 initialization evaluations. All Q blocks were completed before stopping the parameter search. With 308 states and batch size 1024, the verification case uses one block per parameter; the multi-block stopping/counting behavior is checked separately by automated tests.
+| Run | Integrated nodes | Confirmed candidates checked | First positive batch, s | Full selected work, s |
+| --- | ---: | ---: | ---: | ---: |
+| first_hit, serial | 16 | 2 | 0.100930 | 0.106256 |
+| full, serial | 308 | 108 | 0.535238 | 3.826356 |
+| full, two Processes workers | 308 | 108 | 0.297328 | 2.275777 |
 
-This is one paired run, not a confidence interval or proof of a general DE advantage. The grid's candidate is first only relative to this finite grid and detector. The dense initial-state grid can change both detected candidate parameters and runtimes. No quantitative speed claim for the dense grid is inferred from these measurements.
+All node status counts matched between the serial and parallel native full scans. First-hit candidate counts include additional already launched chunks, not just the retained first witness. Timing ratios from this coarse grid cannot be transferred to the dense Q.
 
-[Summary](../example_results/demo_search/summary.csv) · [DE ledger](../example_results/demo_search/de_rep001.csv) · [DE backend settings](../example_results/demo_search/de_rep001_backend.json) · [Grid ledger](../example_results/demo_search/full_scan_rep001.csv) · [Configuration](../example_results/demo_search/configuration.json) · [Figure](../example_results/demo_search/comparison.png)
+[First-hit summary](../example_results/release_20261026/q_first_hit/summary.csv) · [Serial full summary](../example_results/release_20261026/q_full_serial/summary.csv) · [Parallel full summary](../example_results/release_20261026/q_full_processes/summary.csv) · [Map](../example_results/release_20261026/q_full_processes/evaluation_basin/phase_map.png).
 
-## Indicator timing
-
-Fixed b_L=1.54, initial state (0.5,1); no discarded transient. The table reports medians of seven serial repetitions after one warmup. Common orbit generation is excluded. The total is the median of within-repetition sums.
-
-| Indicator | Demo seconds | Paper seconds |
-| --- | ---: | ---: |
-| 0–1 test | 0.007395 | 0.286225 |
-| SALI | 0.000847 | 0.003794 |
-| ConDN | 0.013215 | 0.038399 |
-| Rosenstein LLE | 0.014950 | 0.314279 |
-| Three preliminary indicators total | 0.021365 | 0.328331 |
-
-The combined preliminary-indicator time exceeded Rosenstein time in both profiles. Each individual indicator was faster than Rosenstein in these median measurements. Search defaults to only the 0–1 gate. The timing results depend on implementation, machine and MATLAB state.
-
-[Demo summary](../example_results/demo_indicators/summary.csv) · [Paper summary](../example_results/paper_indicators/summary.csv) · [Paper timing repetitions](../example_results/paper_indicators/timing_repetitions.csv) · [Paper figure](../example_results/paper_indicators/comparison.png)
-
-## Reproduction
-
-From the package root:
+The small map is bundled with its metadata, batch records and evaluation checkpoint for read-only inspection:
 
 ```matlab
-results = run_tests;
-addpath(fullfile(pwd,'tests'));
-verify_release;          % Both timing profiles and explicitly coarse Q search.
-export_example_results; % Reads completed runs; no new model evaluations.
+preview = olg_plot_phase_map(fullfile(pwd,'example_results','release_20261026', ...
+    'q_full_processes','evaluation_basin'), false);
 ```
 
-The ordinary test suite does not scan the complete b_L grid. `verify_release` explicitly uses the coarse grid described above. The main configuration retains the requested dense Q grid in both profiles. Exported CSV files, configurations, backend metadata, witness paths, Rosenstein fits and figures are bundled under `example_results/`.
+The map describes finite-horizon outcomes; no multiple chaotic candidates are merged into a claimed single attractor. The only established exact fixed state singled out analytically is the initial origin.
+
+## DE, grid comparisons and timing
+
+Real comparison checks used demo horizons, Q=[0.49,0.51]×[0.99,1.01] with 3×3 nodes, b_L in [1.53,1.55], two repetitions and two workers. DE found a candidate in 1 and 2 initialization requests; the actual ascending scan used 67 requests in each repetition. These deliberately narrowed positive controls validate execution and reporting, not a general DE or evolutionary-update advantage.
+
+[Measured comparison](../example_results/release_20261026/measured_threads/summary.csv) · [Native DE / grid estimate](../example_results/release_20261026/estimated_processes/estimated_grid_cost.csv).
+
+Both indicator timing profiles completed with the unchanged six-row Rosenstein-only protocol. Paper values still match the supplied optimized table: K=0.99770858049343, ConDN delta=6.62848182382396, Rosenstein short=0.11030543193461, long=0.110704397046645. Times are retained as new measurements, separately from the supplied October 24 table.
+
+[Current paper timing](../example_results/release_20261026/timing_paper/summary.csv) · [Supplied timing](../example_results/optimized_timing_supplied_20261024/timing_summary.csv) · [Historical October 24 report](VALIDATION_20261024.md).
+
+## Reproduction and provenance
+
+```matlab
+build_olg_fast
+results = run_tests;
+addpath(fullfile(pwd,'tests'));
+verify_release;          % Explicit small grids, including paper-horizon maps.
+export_example_results; % Saved results only, no new trajectories.
+```
+
+The Q-mode source instructions, verification and cost analysis are preserved as [source README](SOURCE_20261026_README_Q_MODES.txt), [source verification](SOURCE_20261026_VERIFICATION_Q_MODES.txt) and [source analysis](SOURCE_20261026_ANALYSIS_Q_MODES.txt). Their hand-written DE is not imported; this package retains FEX18593. Input hashes are in [UPGRADE_SOURCE_HASHES_20261026.json](UPGRADE_SOURCE_HASHES_20261026.json). Previous supplied kernel/timing measurements remain historical inputs and do not establish full dense-search speedups.

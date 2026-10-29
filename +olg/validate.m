@@ -1,5 +1,10 @@
 function validate(c)
 % Fail before starting workers or creating output files.
+assert(isfield(c,'schemaVersion') && c.schemaVersion==4,'OLG:ConfigVersion', ...
+    'Create a fresh schema-4 configuration with this package''s olg_config.');
+legacy={'phaseScan','phaseOrder','phaseSeed','firstHitBatchSize','outputDir','integrator','zeroOneBackend'};
+assert(~any(isfield(c,legacy)),'OLG:LegacyFields', ...
+    'Use grouped search/runtime/output fields shown in README, not the standalone experiment fields.');
 assert(ismember(c.mode,{'compare_DE_vs_full_scan','compare_chaos_indicators'}), ...
     'OLG:Mode','Unknown experiment mode.');
 validateattributes([c.model.lambda c.model.sigma],{'numeric'},{'real','finite','>',1});
@@ -44,8 +49,18 @@ validateattributes(c.timing.x0,{'numeric'},{'row','numel',2,'real','finite','non
 assert(all(c.timing.x0<=c.detector.maxState),'OLG:StateLimit','Initial state exceeds maxState.');
 validateattributes(c.timing.repetitions,{'numeric'},{'scalar','integer','positive','finite'});
 validateattributes(c.timing.warmupPasses,{'numeric'},{'scalar','integer','nonnegative','finite'});
+assert(ismember(c.timing.implementation,{'reference','optimized'}),'OLG:Implementation','Unknown timing implementation.');
+assert(ismember(c.timing.zeroOneBackend,{'matlab','native'}),'OLG:Backend','Unknown timing 0-1 backend.');
+assert(ismember(c.timing.neighborMethod,{'auto','brute','native'}),'OLG:Backend','Unknown timing neighbor backend.');
+if strcmp(c.timing.zeroOneBackend,'native'), assert(olg.has_native('olg_zero_one_native_mex'),'OLG:Build','Run build_olg_fast.'); end
+if strcmp(c.timing.neighborMethod,'native'), assert(olg.has_native('olg_nearest_mex'),'OLG:Build','Run build_olg_fast.'); end
 if strcmp(c.mode,'compare_chaos_indicators'), return; end
 s=c.search;
+assert(~isfield(s,'completePositiveQ'),'OLG:Deprecated','Use search.phaseScan=first_hit or full in a fresh configuration.');
+assert(ismember(s.phaseScan,{'first_hit','full'}),'OLG:PhaseScan','Unknown phase scan mode.');
+assert(~strcmp(s.phaseScan,'full') || c.output.enabled,'OLG:FullOutput','Full mode requires output.enabled=true for per-node records.');
+validateattributes(s.firstHitBatchSize,{'numeric'},{'scalar','integer','positive','finite'});
+olg.fast.olg_prepare_modes(olg.fast_config(c,false));
 validateattributes(s.bRange,{'numeric'},{'row','numel',2,'real','finite','positive'});
 assert(diff(s.bRange)>0,'OLG:Grid','bRange must be increasing.');
 validateattributes(s.bStep,{'numeric'},{'scalar','real','finite','positive','<=',diff(s.bRange)});
@@ -58,7 +73,18 @@ else
     validateattributes(s.stateGridSize,{'numeric'},{'row','numel',2,'integer','>=',2,'finite'});
 end
 validateattributes(s.stateBatchSize,{'numeric'},{'scalar','integer','positive','finite'});
-validateattributes(s.retainInitialStatesMax,{'numeric'},{'scalar','integer','nonnegative','finite'});
+validateattributes(s.stateChunkSize,{'numeric'},{'scalar','integer','positive','finite'});
+validateattributes(s.stateCheckpointSeconds,{'numeric'},{'scalar','real','positive','finite'});
+assert(mod(s.stateBatchSize,s.stateChunkSize)==0,'OLG:Batch','stateBatchSize must be a multiple of stateChunkSize.');
+assert(ismember(s.stateOrder,{'shuffle','lex','permuted'}),'OLG:StateOrder','Unknown Q traversal.');
+assert(ismember(s.gridMode,{'estimate','full_scan'}),'OLG:GridMode','Use estimate or full_scan.');
+assert(isequal(c.filters,{'zero_one'}),'OLG:Gate','Search uses 0-1 and Rosenstein only; SALI/ConDN are diagnostics.');
+assert(ismember(c.runtime.integrator,{'matlab','native','auto'}) && ismember(c.runtime.zeroOneBackend,{'matlab','native'}),'OLG:Backend','Unknown backend.');
+assert(ismember(c.parallel.poolType,{'auto','Threads','Processes'}),'OLG:PoolType','Invalid pool type.');
+validateattributes(s.stateSeed,{'numeric'},{'scalar','integer','nonnegative','<=',2^32-1});
+validateattributes(s.gridFirstProbeCount,{'numeric'},{'scalar','integer','positive','finite'});
+validateattributes(s.gridProbesPerRegime,{'numeric'},{'scalar','integer','positive','finite'});
+validateattributes(s.gridRegimeBreaks,{'numeric'},{'vector','real','finite','increasing'});
 validateattributes(s.stateProgressSeconds,{'numeric'},{'scalar','real','positive','finite'});
 validateattributes(s.population,{'numeric'},{'scalar','integer','>=',4,'finite'});
 validateattributes(s.mutation,{'numeric'},{'scalar','real','finite','>',0,'<=',2});
@@ -71,6 +97,10 @@ if ~isequal(s.maxEvaluations,Inf)
 end
 validateattributes(s.progressEvery,{'numeric'},{'scalar','integer','positive','finite'});
 [B,~]=olg.grids(c);
+if strcmp(s.gridMode,'estimate')
+    assert(any(abs(B-s.historicalCandidateB)<1e-10),'OLG:HistoricalTarget', ...
+        'historicalCandidateB must be a grid node; or use gridMode=full_scan.');
+end
 assert(numel(B)>=s.population,'OLG:Population','The b grid must have at least population nodes.');
 if ~(ischar(c.parallel.workers) && strcmp(c.parallel.workers,'auto'))
     validateattributes(c.parallel.workers,{'numeric'},{'scalar','integer','positive','finite'});

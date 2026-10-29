@@ -1,0 +1,46 @@
+{
+  "name": "Markus Buehren Differential Evolution",
+  "fileExchangeID": 18593,
+  "version": "1.16.0",
+  "releaseDate": "2019-11-13",
+  "sourceURL": "https://www.mathworks.com/matlabcentral/fileexchange/18593-differential-evolution",
+  "archiveSHA256": "f7db38622a50982724f20d0af35ad63ad9d740da302561e401c3691859614f80",
+  "parameters": {
+    "algorithm": "DE",
+    "VTR": "NaN",
+    "NP": 20,
+    "F": 0.8,
+    "CR": 1,
+    "strategy": 7,
+    "maxiter": "Inf",
+    "maxtime": "Inf",
+    "maxclock": [],
+    "minvalstddev": -1,
+    "minparamstddev": -1,
+    "nofevaliter": 10,
+    "nochangeiter": 10,
+    "infoIterations": "Inf",
+    "infoPeriod": "Inf",
+    "sendMailPeriod": 1800,
+    "feedSlaveProc": 0,
+    "slaveFileDir": "",
+    "maxMasterEvals": "Inf",
+    "useInitParams": 0,
+    "saveHistory": 0,
+    "displayResults": 0,
+    "minimizeValue": 0,
+    "validChkHandle": ""
+  },
+  "definition": [
+    "index",
+    [
+      1,
+      201
+    ],
+    1
+  ],
+  "seed": 2.0261012E+7,
+  "evaluations": 2,
+  "stopReason": "candidate_found",
+  "entryPoint": "vendor/fex18593/differentialevolution.m"
+}
